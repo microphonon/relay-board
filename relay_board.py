@@ -22,11 +22,10 @@ current_active_button_1 = None
 current_active_button_2 = None
 index2 = 99 # Set a dummy index value at startup
 
-
 # Read serial port entry on front panel and place on top of first column   
 serial_port = tk.Entry(root, bd=3, width=15, bg="white", relief=tk.SUNKEN)
 serial_port.grid(row=1, column=0, padx=3, pady=3)
-serial_port.insert(0, "/dev/ttyUSB0") 
+serial_port.insert(0, "/dev/ttyUSB0") # Sets the default serial port; replace with eg. COM3 on Windows
 #label = tk.Label(root, text="Serial Port:")
 #label.grid(row=0, column=0, sticky="s", padx=3, pady=0)
 
@@ -53,7 +52,7 @@ set_serial.grid(row=0, column=0, padx=0, pady=3)
 # Try to configure serial port at startup 
 root.after_idle(config_serial)     
 
-# Action of Column 1 button
+# Action of Column 1 button. Only one relay can be active
 def on_button_click_1(clicked_button):
     global current_active_button_1
     global index1
@@ -70,12 +69,12 @@ def on_button_click_1(clicked_button):
     index1 = buttons.index(clicked_button)
     print(f"Bank 1 at index {index1} is active.")
     
-# Commands from SainSMART wiki
-    if index1 == 0: # Relay 1 selected
-        hex_string = b':FE050000FF00FE\r\n'
+# The binary commands were found on the SainSMART wiki
+    if index1 == 0: 
+        hex_string = b':FE050000FF00FE\r\n' # Relay 1 selected
         ser.write(hex_string)       
     else:
-        hex_string = b':FE0500000000FD\r\n'
+        hex_string = b':FE0500000000FD\r\n' # Else turn it off
         ser.write(hex_string) 
         
     if index1 == 1: # Relay 2 selected
@@ -127,11 +126,11 @@ def on_button_click_1(clicked_button):
         hex_string = b':FE0500070000F6\r\n' 
         ser.write(hex_string) 
     
-    # Any antenna selected in Bank 1 unsets "Disable All" button in Bank 2
+    # Any relay selected in Bank 1 unsets "Disable All" button in Bank 2
     if index2 == 15:
         current_active_button_2.config(relief=tk.RAISED, bg='aquamarine')
     
-# Action of Column 2 button    
+# Action of Column 2 button. Only one relay can be active    
 def on_button_click_2(clicked_button):
     global current_active_button_2
     global index2
@@ -148,11 +147,11 @@ def on_button_click_2(clicked_button):
     index2 = buttons.index(clicked_button)
     print(f"Bank 2 at index {index2} is active.")
      
-    if index2 == 8: # Relay 9 selected
-        hex_string = b':FE050008FF00F6\r\n'
+    if index2 == 8: 
+        hex_string = b':FE050008FF00F6\r\n' # Relay 9 selected
         ser.write(hex_string)       
     else:
-        hex_string = b':FE0500080000F5\r\n'
+        hex_string = b':FE0500080000F5\r\n' # Else turn it off
         ser.write(hex_string)
         
     if index2 == 9: # Relay 10 selected
@@ -198,11 +197,10 @@ def on_button_click_2(clicked_button):
         ser.write(hex_string)
         
     if index2 == 15: # Disable all relays 
-        hex_string = b':FE0F00000010020000E1\r\n'
+        hex_string = b':FE0F00000010020000E1\r\n' # Convenient global command
         ser.write(hex_string)
         # Reset Column 1 button
-        current_active_button_1.config(relief=tk.RAISED, bg='LightGoldenrod1') 
-        # current_active_button_2.config(relief=tk.RAISED, bg='lawn green')    
+        current_active_button_1.config(relief=tk.RAISED, bg='LightGoldenrod1')   
         
 # Place a blank row for vertical space
 label = tk.Label(root, text=" ") 
